@@ -1,8 +1,8 @@
 # dolt-db-skills
 
-This repo develops and runs skills for managing the **BusMgmtBenchmarks** Dolt database — a financial data project tracking retail company financials from SEC 10-K filings and Yahoo Finance.
+This repo is for working on skills that manage the **BusMgmtBenchmarks** Dolt database — a financial data project tracking retail company financials from SEC 10-K filings and Yahoo Finance.
 
-Skills are slash commands (e.g., `/analyze-financials`) installed into AI tools (Claude Code, Copilot, Gemini, etc.) from `.skillshare/skills/`.
+Skills are slash commands (e.g., `/analyze-financials`) available through AI tool agents.
 
 ## Available Skills
 
@@ -35,14 +35,16 @@ Skills are slash commands (e.g., `/analyze-financials`) installed into AI tools 
 
 **Workflow:** Always run `/analyze-financials` first, review the analysis and reconciled values, then run `/insert-financials` to generate the insert file.
 
-## Setup
+## Starting Agents
+
+Start an AI agent with permissive tool access using:
 
 ```bash
-setup-skills.sh   # install skillshare CLI (once)
-sync-skills.sh    # sync skills to all AI tools
+claude.sh      # Starts Claude agent
+opencode.sh    # Starts OpenCode agent
 ```
 
-Restart Claude Code after syncing for skills to appear.
+These scripts invoke the agent with access to Dolt database tools, financial data tools (SEC 10-K, Yahoo Finance), and the installed skills for analyzing and reconciling financial data.
 
 ## MCP Servers
 
