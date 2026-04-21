@@ -1,6 +1,6 @@
 ---
 name: analyze-financials
-description: Fetch financial statements from SEC 10-K filings and Yahoo Finance for a BusMgmtBenchmarks retail company, compare all sources side by side, detect anomalies (especially SGA composite line items, restatements, and balance sheet mismatches), and produce reconciled values ready for the Dolt database. Use when validating or adding financial data for any company tracked in the BusMgmtBenchmarks project. Triggered by commands like "/analyze-financials TICKER YEAR" or requests to fetch, check, or validate financials for a company in the project.
+description: Fetch financial statements from SEC 10-K filings and Yahoo Finance for a BusMgmtBenchmarks retail company, compare all sources side by side, detect anomalies (especially SGA composite line items, restatements, and balance sheet mismatches), and produce reconciled values ready for the Dolt database. Use when validating or adding financial data for any company tracked in the BusMgmtBenchmarks project. Triggered by commands like "/analyze-financials TICKER YEAR" or "/analyze-financials TICKER" (all years) or requests to fetch, check, or validate financials for a company in the project.
 ---
 
 # analyze-financials
@@ -9,10 +9,36 @@ Fetch, compare, and reconcile financial data for a BusMgmtBenchmarks retail comp
 
 ## Inputs
 
-`/analyze-financials TICKER YEAR`
+`/analyze-financials TICKER [YEAR]`
 
 - `TICKER` — stock ticker (e.g. TRR, WMT, M)
-- `YEAR` — fiscal year (e.g. 2024)
+- `YEAR` — fiscal year (e.g. 2024). **Optional.** If omitted, analyze all available years for the company (see Step 0).
+
+## Step 0 — Determine years to analyze (only when YEAR is omitted)
+
+If no YEAR was provided, discover all available years before proceeding:
+
+**0a.** Query the Dolt DB for years already on record for this company:
+
+```sql
+SELECT DISTINCT year FROM financials WHERE company_name = '{company}' ORDER BY year
+```
+
+**0b.** Fetch Yahoo Finance data (one call covers ~4–5 years):
+
+```
+mcp__mcp-yfinance-10ks__process_financial_data_from_yahoo(company_name, ticker)
+```
+
+Inspect the column headers of the returned income statement to identify all available fiscal year periods.
+
+**0c.** Take the union of years found in Dolt and years found in Yahoo. These are the years to analyze.
+
+**0d.** Display a summary to the user:
+
+> Analyzing all available years for {display_name} ({TICKER}): {year1}, {year2}, …
+
+Then run **Steps 1–8 once for each year**, in ascending order (oldest first). Each year is a fully independent analysis producing its own report file.
 
 ## Step 1 — Look up company metadata
 
